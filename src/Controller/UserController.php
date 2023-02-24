@@ -32,6 +32,13 @@ class UserController extends AbstractController
 
         $email = $data['email'];
         $password = $data["password"];
+        $pseudo = $data["pseudo"];
+        $adresse = $data["adresse"];
+        $ville = $data["ville"];
+        $nom = $data["nom"];
+        $prenom = $data["prenom"];
+        $cp = $data["code_postal"];
+        $civilite = $data["civilite"];
 
         $email_exist = $this->user->findOneByEmail($email);
 
@@ -42,7 +49,14 @@ class UserController extends AbstractController
         } else {
             $user = new User();
             $user->setEmail($email)
-                ->setPassword(sha1($password));
+                ->setPassword(sha1($password))
+                ->setPseudo($pseudo)
+                ->setAdresse($adresse)
+                ->setVille($ville)
+                ->setNom($nom)
+                ->setPrenom($prenom)
+                ->setCodePostal($cp)
+                ->setCivilite($civilite);
             $this->manager->persist($user);
             $this->manager->flush();
             return new JsonResponse(
@@ -58,5 +72,12 @@ class UserController extends AbstractController
         $users = $this->user->findAll();
         return $this->json($users, 200);
 
+    }
+
+    #[Route('/user/{id}', name: 'user_by_id', methods: 'GET')]
+    public function getUserById($id)
+    {
+        $user = $this->user->find($id);
+        return $this->json($user, 200);
     }
 }
