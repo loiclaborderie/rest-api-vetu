@@ -39,6 +39,7 @@ class UserController extends AbstractController
         $prenom = $data["prenom"];
         $cp = $data["code_postal"];
         $civilite = $data["civilite"];
+        $telephone = $data["telephone"];
 
         $email_exist = $this->user->findOneByEmail($email);
 
@@ -56,7 +57,8 @@ class UserController extends AbstractController
                 ->setNom($nom)
                 ->setPrenom($prenom)
                 ->setCodePostal($cp)
-                ->setCivilite($civilite);
+                ->setCivilite($civilite)
+                ->setTelephone($telephone);
             $this->manager->persist($user);
             $this->manager->flush();
             return new JsonResponse(
@@ -65,8 +67,41 @@ class UserController extends AbstractController
         }
     }
 
+    #[Route('/userUpdate/{id}', name: 'user_update', methods: 'PUT')]
+    public function userUpdate($id, Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
 
-    #[Route('/getAllusers', name: 'get_allusers', methods: 'GET')]
+        $email = $data['email'];
+        $pseudo = $data["pseudo"];
+        $adresse = $data["adresse"];
+        $ville = $data["ville"];
+        $nom = $data["nom"];
+        $prenom = $data["prenom"];
+        $cp = $data["code_postal"];
+        $civilite = $data["civilite"];
+        $telephone = $data["telephone"];
+
+        $user = $this->user->find($id);
+
+        $user->setEmail($email)
+            ->setPseudo($pseudo)
+            ->setAdresse($adresse)
+            ->setVille($ville)
+            ->setNom($nom)
+            ->setPrenom($prenom)
+            ->setCodePostal($cp)
+            ->setCivilite($civilite)
+            ->setTelephone($telephone);
+        $this->manager->persist($user);
+        $this->manager->flush();
+        return new JsonResponse(
+            ['status' => true, 'message' => 'Vos informations ont bien été modifées']
+        );
+    }
+
+
+    #[Route('/api2/getAllusers', name: 'get_allusers', methods: 'GET')]
     public function getAllUsers(): Response
     {
         $users = $this->user->findAll();
