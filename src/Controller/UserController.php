@@ -136,7 +136,7 @@ class UserController extends AbstractController
                 'id' => $order->getId(),
                 'date' => $order->getDateEnrg(),
                 'montant' => $order->getMontant(),
-                'status' => $order->getStatut(),
+                'statut' => $order->getStatut(),
                 'details' => []
             ];
 
