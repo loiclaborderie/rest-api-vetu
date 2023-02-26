@@ -39,6 +39,16 @@ class CommandeRepository extends ServiceEntityRepository
         }
     }
 
+    public function findAllByUserId($id): ?array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.id_user = :val')
+            ->setParameter('val', $id)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
 //    /**
 //     * @return Commande[] Returns an array of Commande objects
 //     */
