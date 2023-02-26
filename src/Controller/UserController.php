@@ -2,7 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Commande;
 use App\Entity\User;
+use App\Repository\CommandeRepository;
+use App\Repository\DetailCommandeRepository;
+use App\Repository\ProduitsRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,11 +20,17 @@ class UserController extends AbstractController
 
     private $manager;
     private $user;
+    private $commandeRepository;
+    private $produitsRepository;
+    private $detailCommandeRepository;
 
-    public function __construct(EntityManagerInterface $manager, UserRepository $user)
+    public function __construct(EntityManagerInterface $manager, UserRepository $user, CommandeRepository $commandeRepository, ProduitsRepository $produitsRepository, DetailCommandeRepository $detailCommandeRepository)
     {
         $this->manager = $manager;
         $this->user = $user;
+        $this->commandeRepository = $commandeRepository;
+        $this->produitsRepository = $produitsRepository;
+        $this->detailCommandeRepository = $detailCommandeRepository;
     }
 
 
@@ -114,5 +124,42 @@ class UserController extends AbstractController
     {
         $user = $this->user->find($id);
         return $this->json($user, 200);
+    }
+
+    #[Route('/getAllcommandesByUser/{userId}', name: 'get_allcommandes_by_user', methods: 'GET')]
+    public function getAllCommandesByUser(int $userId): Response
+    {
+        $orders = $this->commandeRepository->findBy(['id_user' => $userId]);
+        $ordersWithDetails = [];
+        foreach ($orders as $order) {
+            $orderWithDetails = [
+                'id' => $order->getId(),
+                'date' => $order->getDateEnrg(),
+                'montant' => $order->getMontant(),
+                'status' => $order->getStatut(),
+                'details' => []
+            ];
+
+            foreach ($order->getIdDetailCommande() as $detailCommand) {
+                $detailCommandWithProduct = [
+                    'id' => $detailCommand->getId(),
+                    'quantite' => $detailCommand->getQuantite(),
+                    'produit' => [
+                        'id' => $detailCommand->getIdProduit()->getId(),
+                        'titre' => $detailCommand->getIdProduit()->getTitre(),
+                        'description' => $detailCommand->getIdProduit()->getDescription(),
+                        'reference' => $detailCommand->getIdProduit()->getReference(),
+                        'photo' => $detailCommand->getIdProduit()->getPhoto(),
+                        'prix' => $detailCommand->getIdProduit()->getPrix(),
+                        'stock' => $detailCommand->getIdProduit()->getStock(),
+                    ]
+                ];
+                $orderWithDetails['details'][] = $detailCommandWithProduct;
+            }
+
+            $ordersWithDetails[] = $orderWithDetails;
+        }
+
+        return $this->json($ordersWithDetails, 200);
     }
 }
