@@ -147,8 +147,8 @@ class UserController extends AbstractController
                     'produit' => [
                         'id' => $detailCommand->getIdProduit()->getId(),
                         'titre' => $detailCommand->getIdProduit()->getTitre(),
-                        'description' => $detailCommand->getIdProduit()->getDescription(),
                         'taille' => $detailCommand->getIdProduit()->getTaille(),
+                        'reference' => $detailCommand->getIdProduit()->getReference(),
                         'photo' => $detailCommand->getIdProduit()->getPhoto(),
                         'prix' => $detailCommand->getIdProduit()->getPrix(),
                         'stock' => $detailCommand->getIdProduit()->getStock(),
