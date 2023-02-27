@@ -44,7 +44,7 @@ class DetailCommandeController extends AbstractController
         $detailCommande->setIdCommande($commande);
         $detailCommande->setIdProduit($produit);
         $detailCommande->setQuantite($quantite);
-        $detailCommande->setPrix($produit->getPrix());
+        $detailCommande->setPrix($produit->getPrix() * $quantite);
 
         $this->manager->persist($detailCommande);
         $this->manager->flush();
@@ -52,5 +52,24 @@ class DetailCommandeController extends AbstractController
         return new JsonResponse(
             ['cela a bien fonctionné', 200]
         );
+    }
+
+    #[Route('/detailcommande/get/{id}', name: 'app_detail_commande_for_commande', methods: 'GET')]
+    function getAllItemsFromCommande($id): Response
+    {
+        $detailCommandes = $this->detailCommandeRep->findBy(['id_commande' => $id]);
+        $orderWithDetails = array_map(function ($detailCommand) {
+            return (object) [
+                'id' => $detailCommand->getIdProduit()->getId(),
+                'quantite' => $detailCommand->getQuantite(),
+                'titre' => $detailCommand->getIdProduit()->getTitre(),
+                'taille' => $detailCommand->getIdProduit()->getTaille(),
+                'reference' => $detailCommand->getIdProduit()->getReference(),
+                'photo' => $detailCommand->getIdProduit()->getPhoto(),
+                'prix' => $detailCommand->getIdProduit()->getPrix(),
+                'stock' => $detailCommand->getIdProduit()->getStock(),
+            ];
+        }, $detailCommandes);
+        return new JsonResponse($orderWithDetails, 200);
     }
 }
