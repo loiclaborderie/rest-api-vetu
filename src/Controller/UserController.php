@@ -162,4 +162,80 @@ class UserController extends AbstractController
 
         return $this->json($ordersWithDetails, 200);
     }
+
+
+    #[Route('/getAllPastcommandesByUser/{userId}', name: 'get_all_pastcommandes_by_user', methods: 'GET')]
+    public function getAllPastCommandesByUser(int $userId): Response
+    {
+        $orders = $this->commandeRepository->findBy(['id_user' => $userId, 'statut' => 'terminée']);
+        $ordersWithDetails = [];
+        foreach ($orders as $order) {
+            $orderWithDetails = [
+                'id' => $order->getId(),
+                'date' => $order->getDateEnrg(),
+                'montant' => $order->getMontant(),
+                'statut' => $order->getStatut(),
+                'details' => []
+            ];
+
+            foreach ($order->getIdDetailCommande() as $detailCommand) {
+                $detailCommandWithProduct = [
+                    'id' => $detailCommand->getId(),
+                    'quantite' => $detailCommand->getQuantite(),
+                    'produit' => [
+                        'id' => $detailCommand->getIdProduit()->getId(),
+                        'titre' => $detailCommand->getIdProduit()->getTitre(),
+                        'taille' => $detailCommand->getIdProduit()->getTaille(),
+                        'reference' => $detailCommand->getIdProduit()->getReference(),
+                        'photo' => $detailCommand->getIdProduit()->getPhoto(),
+                        'prix' => $detailCommand->getIdProduit()->getPrix(),
+                        'stock' => $detailCommand->getIdProduit()->getStock(),
+                    ]
+                ];
+                $orderWithDetails['details'][] = $detailCommandWithProduct;
+            }
+
+            $ordersWithDetails[] = $orderWithDetails;
+        }
+
+        return $this->json($ordersWithDetails, 200);
+    }
+
+
+    #[Route('/getCurrentOrderByUser/{userId}', name: 'get_current_order_by_user', methods: 'GET')]
+    public function getCurrentOrderByUser(int $userId): JsonResponse
+    {
+        $order = $this->commandeRepository->findOneBy(['id_user' => $userId, 'statut' => 'en cours']);
+
+        if (!$order) {
+            return new JsonResponse(['message' => 'No order found for this user'], 404);
+        }
+
+        $orderWithDetails = [
+            'id' => $order->getId(),
+            'date' => $order->getDateEnrg(),
+            'montant' => $order->getMontant(),
+            'statut' => $order->getStatut(),
+            'details' => []
+        ];
+
+        foreach ($order->getIdDetailCommande() as $detailCommand) {
+            $detailCommandWithProduct = [
+                'id' => $detailCommand->getId(),
+                'quantite' => $detailCommand->getQuantite(),
+                'produit' => [
+                    'id' => $detailCommand->getIdProduit()->getId(),
+                    'titre' => $detailCommand->getIdProduit()->getTitre(),
+                    'taille' => $detailCommand->getIdProduit()->getTaille(),
+                    'reference' => $detailCommand->getIdProduit()->getReference(),
+                    'photo' => $detailCommand->getIdProduit()->getPhoto(),
+                    'prix' => $detailCommand->getIdProduit()->getPrix(),
+                    'stock' => $detailCommand->getIdProduit()->getStock(),
+                ]
+            ];
+            $orderWithDetails['details'][] = $detailCommandWithProduct;
+        }
+
+        return $this->json($orderWithDetails, 200);
+    }
 }

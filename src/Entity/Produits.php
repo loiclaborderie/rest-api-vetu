@@ -59,6 +59,9 @@ class Produits
     #[ORM\Column(length: 5)]
     private ?string $taille = null;
 
+    #[ORM\Column(type: Types::DECIMAL, precision: 3, scale: 1, nullable: true)]
+    private ?string $note = null;
+
     public function __construct()
     {
         $this->id_detail_commande = new ArrayCollection();
@@ -239,6 +242,18 @@ class Produits
     public function setTaille(string $taille): self
     {
         $this->taille = $taille;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): self
+    {
+        $this->note = $note;
 
         return $this;
     }
