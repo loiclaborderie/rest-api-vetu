@@ -47,4 +47,28 @@ class CommandeController extends AbstractController
         );
     }
 
+
+    #[Route('/commande/delete/{id}', name: 'app_commande_delete', methods: 'DELETE')]
+    public function deleteCommande($id): Response
+    {
+        $commande = $this->commande->find($id);
+
+        if (!$commande) {
+            return new JsonResponse(
+                ['error' => 'Commande not found']
+            );
+        }
+
+        // iterate through the collection of DetailCommande and remove each one
+        foreach ($commande->getIdDetailCommande() as $detailCommande) {
+            $this->manager->remove($detailCommande);
+        }
+
+        $this->manager->flush();
+
+        return new JsonResponse(
+            ["La commande $id est bien vide", 200]
+        );
+    }
+
 }

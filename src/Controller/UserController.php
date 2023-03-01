@@ -35,7 +35,7 @@ class UserController extends AbstractController
 
 
 
-    #[Route('/userCreate', name: 'user_create', methods: 'POST')]
+    #[Route('/user/create', name: 'user_create', methods: 'POST')]
     public function userCreate(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -49,7 +49,10 @@ class UserController extends AbstractController
         $prenom = $data["prenom"];
         $cp = $data["code_postal"];
         $civilite = $data["civilite"];
-        $telephone = $data["telephone"];
+        $telephone = null;
+        if (isset($data["telephone"])) {
+            $telephone = $data["telephone"];
+        }
 
         $email_exist = $this->user->findOneByEmail($email);
 

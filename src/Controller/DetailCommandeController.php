@@ -30,7 +30,7 @@ class DetailCommandeController extends AbstractController
     }
 
     #[Route('/detailcommande/add/{id}', name: 'app_detail_commande_add_to_commande', methods: 'POST')]
-    public function addItemToCommande($id, Request $request): Response
+    public function addItemToCommande($id, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -55,7 +55,7 @@ class DetailCommandeController extends AbstractController
     }
 
     #[Route('/detailcommande/get/{id}', name: 'app_detail_commande_for_commande', methods: 'GET')]
-    function getAllItemsFromCommande($id): Response
+    function getAllItemsFromCommande($id): JsonResponse
     {
         $detailCommandes = $this->detailCommandeRep->findBy(['id_commande' => $id]);
         $orderWithDetails = array_map(function ($detailCommand) {
