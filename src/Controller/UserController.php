@@ -114,6 +114,35 @@ class UserController extends AbstractController
     }
 
 
+    #[Route('/userUpdate/password/{id}', name: 'user_password_update', methods: 'PUT')]
+    public function changePassword($id, Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $password = $data['password'];
+        $newPassword = $data["newPassword"];
+
+        $user = $this->user->find($id);
+
+        $mdp = $user->getPassword();
+        $checkPassword = sha1($password);
+        $newPassword = sha1($newPassword);
+
+        if ($mdp !== $checkPassword) {
+            return new JsonResponse(
+                ['status' => false, 'message' => 'Le mot de passe ne correspond pas à celui qui existe']
+            );
+        }
+
+        $user->setPassword($newPassword);
+
+        $this->manager->persist($user);
+        $this->manager->flush();
+        return new JsonResponse(
+            ['status' => true, 'newmdp' => $newPassword]
+        );
+    }
+
+
     #[Route('/api2/getAllusers', name: 'get_allusers', methods: 'GET')]
     public function getAllUsers(): Response
     {
