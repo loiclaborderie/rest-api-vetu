@@ -138,7 +138,7 @@ class UserController extends AbstractController
         $this->manager->persist($user);
         $this->manager->flush();
         return new JsonResponse(
-            ['status' => true, 'newmdp' => $newPassword]
+            ['status' => true, 'message' => "Le mot de passe a été mis à jour"]
         );
     }
 

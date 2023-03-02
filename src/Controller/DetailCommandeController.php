@@ -40,18 +40,31 @@ class DetailCommandeController extends AbstractController
         $commande = $this->commandeRep->find($id);
         $produit = $this->produitRep->find($id_produit);
 
-        $detailCommande = new DetailCommande();
-        $detailCommande->setIdCommande($commande);
-        $detailCommande->setIdProduit($produit);
-        $detailCommande->setQuantite($quantite);
-        $detailCommande->setPrix($produit->getPrix() * $quantite);
+        $detailCommande = $this->manager->getRepository(DetailCommande::class)
+            ->findOneBy(['id_commande' => $commande, 'id_produit' => $produit]);
 
-        $this->manager->persist($detailCommande);
-        $this->manager->flush();
+        if ($detailCommande) {
+            $detailCommande->setQuantite($detailCommande->getQuantite() + $quantite);
+            $detailCommande->setPrix($produit->getPrix() * $detailCommande->getQuantite());
+            $this->manager->persist($detailCommande);
+            $this->manager->flush();
+            return new JsonResponse(
+                ['cela a bien fonctionné', 200]
+            );
+        } else {
+            $detailCommande = new DetailCommande();
+            $detailCommande->setIdCommande($commande);
+            $detailCommande->setIdProduit($produit);
+            $detailCommande->setQuantite($quantite);
+            $detailCommande->setPrix($produit->getPrix() * $quantite);
 
-        return new JsonResponse(
-            ['cela a bien fonctionné', 200]
-        );
+            $this->manager->persist($detailCommande);
+            $this->manager->flush();
+
+            return new JsonResponse(
+                ['cela a bien fonctionné', 200]
+            );
+        }
     }
 
     #[Route('/detailcommande/get/{id}', name: 'app_detail_commande_for_commande', methods: 'GET')]
