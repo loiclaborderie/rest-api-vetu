@@ -17,11 +17,47 @@ class ProduitsController extends AbstractController
     }
 
 
+    #[Route("/produits/categories", name: "produits_distinct_categories", methods: "GET")]
+
+    public function getAllCategories(): JsonResponse
+    {
+        $categories = $this->produitsRepository->findAllCategoriesByGender();
+
+        return $this->json($categories);
+    }
+
     #[Route("/produits/distinct-reference", name: "produits_distinct_reference", methods: "GET")]
 
     public function getAllDistinctReference(): JsonResponse
     {
         $references = $this->produitsRepository->findAllDistinctReference();
+
+        return $this->json($references);
+    }
+
+    #[Route("/produits/categorie/{categorie}", name: "produits_reference_by_categorie", methods: "GET")]
+
+    public function getAllReferenceByCategory(string $categorie): JsonResponse
+    {
+        $references = $this->produitsRepository->findAllReferenceByCategory($categorie);
+
+        return $this->json($references);
+    }
+
+    #[Route("/produits/categorie/{categorie}/{public}", name: "produits_reference_by_categorie_public", methods: "GET")]
+
+    public function getAllReferenceByCategoryandPublic(string $categorie, string $public): JsonResponse
+    {
+        $references = $this->produitsRepository->findAllReferenceByCategoryAndPublic($categorie, $public);
+
+        return $this->json($references);
+    }
+
+    #[Route("/produits/search/{term}", name: "produits_reference_searchterm", methods: "GET")]
+
+    public function getAllProductsBySearchTerm(string $term): JsonResponse
+    {
+        $references = $this->produitsRepository->findAllReferenceBySearchTerm($term);
 
         return $this->json($references);
     }

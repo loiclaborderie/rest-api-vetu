@@ -52,16 +52,64 @@ class ProduitsRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+    public function findAllCategoriesByGender(): ?array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('distinct p.categorie', 'p.public')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
     /**
      * @return Produits[] Returns an array of Produits objects
      */
-    public function findAllDistinctReference(): ?array
+    public function findAllgroupByReference(): ?array
     {
         return $this->createQueryBuilder('p')
             ->select('p')
-            ->distinct('p.reference')
-            ->setMaxResults(30)
+            ->groupBy('p.reference')
+            ->setMaxResults(36)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllReferenceByCategoryAndPublic(string $categorie, string $public): ?array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p')
+            ->groupBy('p.reference')
+            ->andWhere('p.categorie = :categorie')
+            ->andWhere('p.public = :public')
+            ->setParameter('categorie', $categorie)
+            ->setParameter('public', $public)
+            ->setMaxResults(36)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllReferenceByCategory(string $categorie): ?array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p')
+            ->groupBy('p.reference')
+            ->andWhere('p.categorie = :categorie')
+            ->setParameter('categorie', $categorie)
+            ->setMaxResults(36)
+            ->getQuery()
+            ->getResult();
+    }
+    public function findAllReferenceBySearchTerm(string $term): ?array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p')
+            ->groupBy('p.reference')
+            ->where('p.titre LIKE :term')
+            ->orWhere('p.description LIKE :term')
+            ->orWhere('p.categorie LIKE :term')
+            ->orWhere('p.reference LIKE :term')
+            ->setParameter('term', '%' . $term . '%')
+            ->setMaxResults(36)
             ->getQuery()
             ->getResult();
     }
