@@ -29,27 +29,33 @@ class ProduitsController extends AbstractController
 
     #[Route("/produits/distinct-reference", name: "produits_distinct_reference", methods: "GET")]
 
-    public function getAllDistinctReference(): JsonResponse
+    public function getAllDistinctReference(Request $request): JsonResponse
     {
-        $references = $this->produitsRepository->findAllDistinctReference();
+        $page = $request->query->getInt('page', 1);
+        $sortBy = $request->query->get('sortBy', 'id');
+        $references = $this->produitsRepository->findAllgroupByReference($page, $sortBy);
 
         return $this->json($references);
     }
 
     #[Route("/produits/categorie/{categorie}", name: "produits_reference_by_categorie", methods: "GET")]
 
-    public function getAllReferenceByCategory(string $categorie): JsonResponse
+    public function getAllReferenceByCategory(string $categorie, Request $request): JsonResponse
     {
-        $references = $this->produitsRepository->findAllReferenceByCategory($categorie);
+        $page = $request->query->getInt('page', 1);
+        $sortBy = $request->query->get('sortBy', 'id');
+        $references = $this->produitsRepository->findAllReferenceByCategory($categorie, $page, $sortBy);
 
         return $this->json($references);
     }
 
     #[Route("/produits/categorie/{categorie}/{public}", name: "produits_reference_by_categorie_public", methods: "GET")]
 
-    public function getAllReferenceByCategoryandPublic(string $categorie, string $public): JsonResponse
+    public function getAllReferenceByCategoryandPublic(string $categorie, string $public, Request $request): JsonResponse
     {
-        $references = $this->produitsRepository->findAllReferenceByCategoryAndPublic($categorie, $public);
+        $page = $request->query->getInt('page', 1);
+        $sortBy = $request->query->get('sortBy', 'id');
+        $references = $this->produitsRepository->findAllReferenceByCategoryAndPublic($categorie, $public, $page, $sortBy);
 
         return $this->json($references);
     }

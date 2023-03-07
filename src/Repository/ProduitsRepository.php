@@ -65,40 +65,163 @@ class ProduitsRepository extends ServiceEntityRepository
     /**
      * @return Produits[] Returns an array of Produits objects
      */
-    public function findAllgroupByReference(): ?array
+    public function findAllgroupByReference(
+        int $page = 1,
+        string $sortBy = 'id',
+        int $perPage = 36
+    ): ?array
     {
-        return $this->createQueryBuilder('p')
+        $query = $this->createQueryBuilder('p')
             ->select('p')
             ->groupBy('p.reference')
-            ->setMaxResults(36)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults(36);
+
+        switch ($sortBy) {
+            case 'desc_price':
+                $query->orderBy('p.prix', 'desc');
+                break;
+            case 'asc_price':
+                $query->orderBy('p.prix', 'asc');
+                break;
+            case 'desc_rate':
+                $query->orderBy('p.note', 'desc');
+                break;
+            case 'asc_rate':
+                $query->orderBy('p.note', 'asc');
+                break;
+            default:
+                $query->orderBy('p.id');
+                break;
+        }
+        $query->setMaxResults($perPage)
+            ->setFirstResult(($page * $perPage) - $perPage);
+
+
+        $paginator = new Paginator($query);
+        $data = $paginator->getQuery()->getResult();
+
+        if (empty($data)) {
+            return [];
+        }
+
+        $pages = ceil($paginator->count() / $perPage);
+
+
+        return [
+            'results' => $data,
+            'limit' => $perPage,
+            'pages' => $pages,
+            'page' => $page,
+            'numberResults' => $paginator->count(),
+        ];
     }
 
-    public function findAllReferenceByCategoryAndPublic(string $categorie, string $public): ?array
+    public function findAllReferenceByCategoryAndPublic(
+        string $categorie, string $public, int $page = 1,
+        string $sortBy = 'id',
+        int $perPage = 36
+    ): ?array
     {
-        return $this->createQueryBuilder('p')
+        $query = $this->createQueryBuilder('p')
             ->select('p')
             ->groupBy('p.reference')
             ->andWhere('p.categorie = :categorie')
             ->andWhere('p.public = :public')
             ->setParameter('categorie', $categorie)
-            ->setParameter('public', $public)
-            ->setMaxResults(36)
-            ->getQuery()
-            ->getResult();
+            ->setParameter('public', $public);
+
+
+        switch ($sortBy) {
+            case 'desc_price':
+                $query->orderBy('p.prix', 'desc');
+                break;
+            case 'asc_price':
+                $query->orderBy('p.prix', 'asc');
+                break;
+            case 'desc_rate':
+                $query->orderBy('p.note', 'desc');
+                break;
+            case 'asc_rate':
+                $query->orderBy('p.note', 'asc');
+                break;
+            default:
+                $query->orderBy('p.id');
+                break;
+        }
+        $query->setMaxResults($perPage)
+            ->setFirstResult(($page * $perPage) - $perPage);
+
+
+        $paginator = new Paginator($query);
+        $data = $paginator->getQuery()->getResult();
+
+        if (empty($data)) {
+            return [];
+        }
+
+        $pages = ceil($paginator->count() / $perPage);
+
+
+        return [
+            'results' => $data,
+            'limit' => $perPage,
+            'pages' => $pages,
+            'page' => $page,
+            'numberResults' => $paginator->count(),
+        ];
     }
 
-    public function findAllReferenceByCategory(string $categorie): ?array
+    public function findAllReferenceByCategory(
+        string $categorie, int $page = 1,
+        string $sortBy = 'id',
+        int $perPage = 36
+    ): ?array
     {
-        return $this->createQueryBuilder('p')
+        $query = $this->createQueryBuilder('p')
             ->select('p')
             ->groupBy('p.reference')
             ->andWhere('p.categorie = :categorie')
             ->setParameter('categorie', $categorie)
-            ->setMaxResults(36)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults(36);
+
+        switch ($sortBy) {
+            case 'desc_price':
+                $query->orderBy('p.prix', 'desc');
+                break;
+            case 'asc_price':
+                $query->orderBy('p.prix', 'asc');
+                break;
+            case 'desc_rate':
+                $query->orderBy('p.note', 'desc');
+                break;
+            case 'asc_rate':
+                $query->orderBy('p.note', 'asc');
+                break;
+            default:
+                $query->orderBy('p.id');
+                break;
+        }
+        $query->setMaxResults($perPage)
+            ->setFirstResult(($page * $perPage) - $perPage);
+
+
+        $paginator = new Paginator($query);
+        $data = $paginator->getQuery()->getResult();
+
+        if (empty($data)) {
+            return [];
+        }
+
+        $pages = ceil($paginator->count() / $perPage);
+
+
+        return [
+            'results' => $data,
+            'limit' => $perPage,
+            'pages' => $pages,
+            'page' => $page,
+            'numberResults' => $paginator->count(),
+        ];
     }
     public function findAllReferenceBySearchTerm(
         string $term,
