@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\ProduitsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -55,9 +56,14 @@ class ProduitsController extends AbstractController
 
     #[Route("/produits/search/{term}", name: "produits_reference_searchterm", methods: "GET")]
 
-    public function getAllProductsBySearchTerm(string $term): JsonResponse
+    public function getAllProductsBySearchTerm(
+        string $term,
+        Request $request
+    ): JsonResponse
     {
-        $references = $this->produitsRepository->findAllReferenceBySearchTerm($term);
+        $page = $request->query->getInt('page', 1);
+        $sortBy = $request->query->get('sortBy', 'id');
+        $references = $this->produitsRepository->findAllReferenceBySearchTerm($term, $page, $sortBy);
 
         return $this->json($references);
     }

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Produits;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -99,18 +100,59 @@ class ProduitsRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-    public function findAllReferenceBySearchTerm(string $term): ?array
+    public function findAllReferenceBySearchTerm(
+        string $term,
+        int $page = 1,
+        string $sortBy = 'id',
+        int $perPage = 36
+    ): ?array
     {
-        return $this->createQueryBuilder('p')
+        $query = $this->createQueryBuilder('p')
             ->select('p')
             ->groupBy('p.reference')
             ->where('p.titre LIKE :term')
-            ->orWhere('p.description LIKE :term')
+            // ->orWhere('p.description LIKE :term')
             ->orWhere('p.categorie LIKE :term')
             ->orWhere('p.reference LIKE :term')
-            ->setParameter('term', '%' . $term . '%')
-            ->setMaxResults(36)
-            ->getQuery()
-            ->getResult();
+            ->setParameter('term', '%' . $term . '%');
+
+        switch ($sortBy) {
+            case 'desc_price':
+                $query->orderBy('p.prix', 'desc');
+                break;
+            case 'asc_price':
+                $query->orderBy('p.prix', 'asc');
+                break;
+            case 'desc_rate':
+                $query->orderBy('p.note', 'desc');
+                break;
+            case 'asc_rate':
+                $query->orderBy('p.note', 'asc');
+                break;
+            default:
+                $query->orderBy('p.id');
+                break;
+        }
+        $query->setMaxResults($perPage)
+            ->setFirstResult(($page * $perPage) - $perPage);
+
+
+        $paginator = new Paginator($query);
+        $data = $paginator->getQuery()->getResult();
+
+        if (empty($data)) {
+            return [];
+        }
+
+        $pages = ceil($paginator->count() / $perPage);
+
+
+        return [
+            'results' => $data,
+            'limit' => $perPage,
+            'pages' => $pages,
+            'page' => $page,
+            'numberResults' => $paginator->count(),
+        ];
     }
 }
