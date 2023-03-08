@@ -44,7 +44,10 @@ class DetailCommandeController extends AbstractController
             ->findOneBy(['id_commande' => $commande, 'id_produit' => $produit]);
 
         if ($detailCommande) {
-            $detailCommande->setQuantite($detailCommande->getQuantite() + $quantite);
+            $finalQuantity = $detailCommande->getQuantite() + $quantite;
+            $detailCommande->setQuantite($finalQuantity);
+            $stock = $produit->getStock();
+            $produit->setStock($stock - $quantite);
             $detailCommande->setPrix($produit->getPrix() * $detailCommande->getQuantite());
             $this->manager->persist($detailCommande);
             $this->manager->flush();
@@ -53,6 +56,9 @@ class DetailCommandeController extends AbstractController
             );
         } else {
             $detailCommande = new DetailCommande();
+            $stock = $produit->getStock();
+            $stock = $produit->getStock();
+            $produit->setStock($stock - $quantite);
             $detailCommande->setIdCommande($commande);
             $detailCommande->setIdProduit($produit);
             $detailCommande->setQuantite($quantite);
