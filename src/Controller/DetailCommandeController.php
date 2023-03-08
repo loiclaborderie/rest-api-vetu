@@ -29,6 +29,41 @@ class DetailCommandeController extends AbstractController
         $this->detailCommandeRep = $detailCommandeRepository;
     }
 
+
+    #[Route('/detailcommande/change/{id}', name: 'app_detail_commande_update_commande_quantity', methods: 'PATCH')]
+    public function changeDetailCommandeQuantity($id, Request $request): JsonResponse
+    {
+        $commande = $this->commandeRep->find($id);
+        $data = json_decode($request->getContent(), true);
+        $quantity = $data['quantite'];
+        $idproduit = $data['id'];
+        $detailCommande = $this->detailCommandeRep->findBy(['id_commande' => $commande, 'id_produit' => $idproduit]);
+        $produit = $this->produitRep->find($idproduit);
+        $stock = $produit->getStock();
+        $prix = $produit->getPrix();
+
+        if (!empty($detailCommande)) {
+            $previousQuantity = $detailCommande[0]->getQuantite();
+            $diff = $quantity - $previousQuantity;
+
+            if ($stock >= $diff) {
+                $produit->setStock($stock - $diff);
+                $detailCommande[0]->setQuantite($quantity);
+                $detailCommande[0]->setPrix($quantity * $prix);
+                $this->manager->persist($produit);
+                $this->manager->persist($detailCommande[0]);
+                $this->manager->flush();
+                return new JsonResponse(["new quantity = $quantity", 200]);
+            } else {
+                return new JsonResponse(["Quantité insuffisante", 400]);
+            }
+        } else {
+            return new JsonResponse(['failed', 400]);
+        }
+    }
+
+
+
     #[Route('/detailcommande/add/{id}', name: 'app_detail_commande_add_to_commande', methods: 'POST')]
     public function addItemToCommande($id, Request $request): JsonResponse
     {
@@ -92,7 +127,7 @@ class DetailCommandeController extends AbstractController
                 'reference' => $detailCommand->getIdProduit()->getReference(),
                 'photo' => $detailCommand->getIdProduit()->getPhoto(),
                 'prix' => $detailCommand->getIdProduit()->getPrix(),
-                'stock' => $detailCommand->getIdProduit()->getStock(),
+                'stock' => $detailCommand->getIdProduit()->getStock() + $detailCommand->getQuantite(),
             ];
         }, $detailCommandes);
         return new JsonResponse($orderWithDetails, 200);
