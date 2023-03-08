@@ -40,6 +40,12 @@ class DetailCommandeController extends AbstractController
         $commande = $this->commandeRep->find($id);
         $produit = $this->produitRep->find($id_produit);
 
+        if ($produit->getStock() < $quantite) {
+            return new JsonResponse(
+                ['stock insuffisant', 400]
+            );
+        }
+
         $detailCommande = $this->manager->getRepository(DetailCommande::class)
             ->findOneBy(['id_commande' => $commande, 'id_produit' => $produit]);
 

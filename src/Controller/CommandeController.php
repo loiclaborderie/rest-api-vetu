@@ -61,6 +61,10 @@ class CommandeController extends AbstractController
 
         // iterate through the collection of DetailCommande and remove each one
         foreach ($commande->getIdDetailCommande() as $detailCommande) {
+            $quantite = $detailCommande->getQuantite();
+            $produit = $detailCommande->getIdProduit();
+            $stock = $produit->getStock();
+            $produit->setStock($stock + $quantite);
             $this->manager->remove($detailCommande);
         }
 
