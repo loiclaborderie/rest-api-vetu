@@ -36,7 +36,7 @@ class UserController extends AbstractController
 
 
     #[Route('/user/create', name: 'user_create', methods: 'POST')]
-    public function userCreate(Request $request): Response
+    public function userCreate(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -81,7 +81,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/userUpdate/{id}', name: 'user_update', methods: 'PUT')]
-    public function userUpdate($id, Request $request): Response
+    public function userUpdate($id, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
